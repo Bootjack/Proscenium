@@ -1,0 +1,6 @@
+# WebStorm project
+.idea
+
+# Node and Bower
+bower_components
+node_modules

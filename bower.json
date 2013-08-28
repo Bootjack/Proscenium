@@ -1,0 +1,29 @@
+{
+  "name": "PaperExperiment27",
+  "version": "0.0.0",
+  "authors": [
+    "Jason Hinebaugh <jason@bootjackdesign.com>"
+  ],
+  "description": "An experimental game engine in paper.js + ammo.js",
+  "main": "public/js/main.js",
+  "keywords": [
+    "game engine",
+    "soft body physics",
+    "vector graphics"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "node_modules",
+    "bower_components"
+  ],
+  "dependencies": {
+    "paper": "~0.9.9",
+    "modernizr": "~2.6.2",
+    "backbone-amd": "~1.0.0",
+    "normalize.styl": "~2.1.2"
+  },
+  "devDependencies": {
+    "requirejs": "~2.1.8"
+  }
+}

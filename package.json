@@ -8,5 +8,10 @@
     "grunt-contrib-requirejs": "~0.4.1",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-contrib-stylus": "~0.8.0"
+  },
+  "dependencies": {
+    "grunt-contrib-jasmine": "~0.5.1",
+    "grunt-template-jasmine-requirejs": "~0.1.5",
+    "grunt-contrib-jshint": "~0.6.3"
   }
 }

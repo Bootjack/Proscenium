@@ -1,46 +1,19 @@
-describe('Curtain', function () {
-    it('initializes with one empty world', function () {
-        expect(game.world).toBeDefined();
-        expect(game.world.length).toBe(0);
-    });
-    
-    it('initializes with one proscenium', function () {
-        expect(game.proscenium).toBeDefined();
-    });
-    
-    describe('Proscenium', function () {
-        beforeEach(function () {
-            // Set up importable DOM element
-            var element = document.createElement('div');
-            element.id = 'test-proscenium';
-            document.body.appendChild(element);            
+define(['src/curtain.js'], function (Curtain) {
+    describe('Curtain', function () {
+        var testCurtain;
+        it('can create a new curtain by name', function () {
+            new Curtain('test');
+            expect(Curtain._object['test']).toBeDefined();
         });
-        
-        afterEach(function () {
-            // Tear down importable DOM element
-            document.body.removeChild(element);
+        it('can create a new anonymous curtain', function () {
+            testCurtain = new Curtain();
+            expect(Curtain._array.length).toBe(2);
         });
-        
-        it('creates a DOM element', function () {
-            game.proscenium();
-            expect(document.getElementById('proscenium')).toBeTruthy();
+        it('can destroy a curtain by name', function () {
+            expect(false).toBeTruthy();
         });
-        
-        it('accepts an existing DOM element by reference', function () {
-            game.proscenium(element);
-            expect(document.body.contains(element)).toBeTruthy();
-        });
-        
-        it('accepts an existing DOM element by id', function () {
-            game.proscenium(element);
-            expect(document.getElementById('game-interface-test')).toBeTruthy();
+        it('can destroy a curtain by reference', function () {
+            expect(false).toBeTruthy();
         });
     });
-    
-    describe('World', function () {
-        it('holds newly created actors', function () {
-            var actor = new game.Actor();
-            expect(game.world.length).toBe(1);
-        })
-    })
-})
+});

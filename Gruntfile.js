@@ -24,7 +24,6 @@ module.exports = function(grunt) {
                     templateOptions: {
                         requireConfig: {
                             baseUrl: './',
-                            name: 'src/app.js',
                             include: [
                                 'bower_components/modernizr/modernizr.js'
                             ]

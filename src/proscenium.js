@@ -37,18 +37,18 @@
  * change, we probably want to hide that activity behind a curtain. This is
  * where the interface comes in.
  * 
- * Interface
+ * Curtain
  * 
- * The game interface is the layer on top of the stage.  The most basic
- * function of the interface is to transition between scenes. Most likely
+ * The curtain is the interface layer on top of the stage.  The most basic
+ * function of the curtain is to transition between scenes. Most likely
  * the first thing a player encounters is a gameplay selection interface.
  * This could be a selection of unlocked levels, single- or multi-player
- * game types, or configuration options. The interface also manages any
+ * game types, or configuration options. The curtain also manages any
  * loading states to inform the player that the game is working and will
  * proceed to the next scene as soon as it's available.
  * 
- * What makes the interface so much fun is that it also persists on top
- * of the stage throughout gameplay. The interface is the medium through which
+ * What makes the curtain such an apt metaphor is that it also persists on top
+ * of the stage throughout scenes. The curtain is the medium through which
  * the player interacts with the scenes on the stage. It captures player input
  * like keyboard or mouse controls and provides meta-information about the
  * scene and objects.
@@ -60,10 +60,10 @@
  * illustrates the distinction between interface and stage in such a case.
  * The interface shows the player the cards in their hand, but the visual
  * relationship among those cards and between them and the other cards in the 
- * game is irrelevant. The stage tracks the state of each card from the deck
+ * game is irrelevant. The world tracks the state of each card from the deck
  * to the players hand to the current trick to the winning player's pile.
  * The interface shows the player information about the game state and handles
- * the players actions, including showing which actions are available at each
+ * the player's actions, including showing which actions are available at each
  * point in the game. And yes, a card game *could* include a rendered scene
  * to track the position of each card, animated smoothly at 60 fps. It could 
  * also include a physics engine to calculate the friction of cards sliding
@@ -71,31 +71,30 @@
  * 
  * The point is that a game can exist without a rendered scene, or physics,
  * or sound. What's left when those elements are removed is the abstraction
- * of a game that this framework aims to manage. */
+ * of a game that this framework aims to manage. 
+ * 
+ * Hierarchy
+ * 
+ * Proscenium (both constructor and global namespace)
+ *   - world
+ *   - Curtain
+ *   - Actor
+ *   - Scene
+ */
 
 define([
-    'src/world',
-    'src/curtain'
-], function (World, Curtain) {
+    'src/curtain',
+    'src/actor'
+], function (Curtain, Actor) {
     'use strict';
 
-    var Actor, Prop, Proscenium, Scene, Stage;
-
-    return function (config) {        
-        /* Because we are abstracting the game framework, we have to assume that
-         * the game may not include any graphics, physics, or sound. If the game
-         * does include these, they must be passed in through the configuration
-         * object, labeled so that we know how to handle them. */
-        config = config || {};
+    return function (config) {                
+        this.Curtain = Curtain;
+        this.Curtain.prototype.world = this.world;
+        this.curtains = this.Curtain._curtains;
         
-        /* There should only be one world to track all of the game objects. */      
-        this.world = new World();
-        
-        /* There should also only be one proscenium, whose interface elements come 
-         * and go and update based on the needs of the scene, player interactions, 
-         * and updates to world objects. */
-        
-        this.proscenium = new Curtain(this.world);
+//        this.Actor = Actor;
+//        this.Actor.prototype.world = this.world;
         
         return this;
     };

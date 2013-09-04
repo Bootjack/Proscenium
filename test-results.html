@@ -54,23 +54,23 @@
         'src/app' ,
       
         
-        'src/collection' ,
-      
-        
         'src/curtain' ,
       
         
         'src/proscenium' ,
       
         
-        'src/util' ,
+        'src/scene' ,
       
         
-        'src/world' 
+        'src/stage' ,
+      
+        
+        'src/util' 
       
     ],
     function(){
-      require(['spec/curtain-spec.js','spec/proscenium-spec.js','.grunt/grunt-contrib-jasmine/reporter.js'], function(){
+      require(['spec/actor-spec.js','spec/curtain-spec.js','spec/proscenium-spec.js','.grunt/grunt-contrib-jasmine/reporter.js'], function(){
         require(['.grunt/grunt-contrib-jasmine/jasmine-helper.js'], function(){
           // good to go! Our tests should already be running.
         })

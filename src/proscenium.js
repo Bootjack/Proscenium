@@ -83,19 +83,53 @@
  */
 
 define([
+    'src/actor',
     'src/curtain',
-    'src/actor'
-], function (Curtain, Actor) {
+    'src/scene',
+    'src/stage'
+], function (Actor, Curtain, Scene, Stage) {
     'use strict';
 
-    return function (config) {                
-        this.Curtain = Curtain;
-        this.Curtain.prototype.world = this.world;
-        this.curtains = this.Curtain._curtains;
+    function create(Constructor, collection, id, config) {
+        config = config || ('string' !== typeof id && id);
+        id = id || collection + '-' + this['_' + collection];
+        config.id = config.id || id;
+        var instance = Constructor(config);
+        this[collection][id] = instance;
+        this['_' + collection] += 1;
+        return instance;
+    }
+    
+    var Proscenium = { 
+        actors: {},
+        _actors: 0,
+        curtains: {},
+        _curtains: 0,
+        scenes: {},
+        _scenes: 0,
+        stages: {},
+        _stages: 0,
         
-//        this.Actor = Actor;
-//        this.Actor.prototype.world = this.world;
+        actor: function (id, config) {
+            return create(Actor, 'actors', id, config);
+        },
+
+        curtain: function (id, config) {
+            return create(Curtain, 'curtains', id, config);
+        },
+
+        role: function (id, role) {
+            Actor.prototype._roles[id] = role;
+        },
         
-        return this;
+        scene: function (id, config) {
+            return create(Scene, 'scenes', id, config);
+        },
+        
+        stage: function (id, config) {
+            return create(Stage, 'stages', id, config);
+        }
     };
+    
+    return Proscenium;
 });

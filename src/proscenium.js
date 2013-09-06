@@ -119,7 +119,10 @@ define([
         },
 
         role: function (id, role) {
-            Actor.prototype._roles[id] = role;
+            Actor.prototype._roles[id] = {
+                definition: role,
+                members: []
+            };
         },
         
         scene: function (id, config) {

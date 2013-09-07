@@ -1,7 +1,7 @@
 define(['src/curtain.js', 'src/emitter.js'], function (Curtain, Emitter) {
     describe('Curtain', function () {
         var actor, curtain;
-        curtain = new Curtain('test');
+        curtain = new Curtain({id: 'test'});
         actor = new Emitter();
         actor.state = {};
         it('creates a DOM element', function () {

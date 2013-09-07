@@ -7,3 +7,6 @@ node_modules
 
 # Grunt
 .grunt
+
+# Build artifacts
+public/js

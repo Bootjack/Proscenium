@@ -89,16 +89,6 @@ define([
     'src/stage'
 ], function (Actor, Curtain, Scene, Stage) {
     'use strict';
-
-    function create(Constructor, collection, id, config) {
-        config = config || ('string' !== typeof id && id);
-        id = id || collection + '-' + this['_' + collection];
-        config.id = config.id || id;
-        var instance = Constructor(config);
-        this[collection][id] = instance;
-        this['_' + collection] += 1;
-        return instance;
-    }
     
     var Proscenium = { 
         actors: {},
@@ -110,12 +100,22 @@ define([
         stages: {},
         _stages: 0,
         
+        create: function (Constructor, collection, id, config) {
+            config = config || ('string' !== typeof id && id);
+            id = id || collection + '-' + this['_' + collection];
+            config.id = config.id || id;
+            var instance = new Constructor(config);
+            this[collection][id] = instance;
+            this['_' + collection] += 1;
+            return instance;
+        },
+        
         actor: function (id, config) {
-            return create(Actor, 'actors', id, config);
+            return this.create(Actor, 'actors', id, config);
         },
 
         curtain: function (id, config) {
-            return create(Curtain, 'curtains', id, config);
+            return this.create(Curtain, 'curtains', id, config);
         },
 
         role: function (id, role) {
@@ -126,11 +126,11 @@ define([
         },
         
         scene: function (id, config) {
-            return create(Scene, 'scenes', id, config);
+            return this.create(Scene, 'scenes', id, config);
         },
         
         stage: function (id, config) {
-            return create(Stage, 'stages', id, config);
+            return this.create(Stage, 'stages', id, config);
         }
     };
     

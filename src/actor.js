@@ -10,6 +10,11 @@ define(['src/emitter', 'src/util'], function (Emitter, util) {
 
     util.mixin(Actor, Emitter);
     
+    Actor.prototype.set = function (name, value) {
+        this.state[name] = value;
+        this.trigger('update');
+    };
+    
     // A shared set of role definitions. Proscenium.role() adds to this list.
     Actor.prototype._roles = {};
 
@@ -33,6 +38,8 @@ define(['src/emitter', 'src/util'], function (Emitter, util) {
                 for (property in role.definition) {
                     this[property] = role.definition[property];
                 }
+            } else {
+                throw new Error('Actor role "' + roles[i] + '" is not defined');
             }
         }
         return this;

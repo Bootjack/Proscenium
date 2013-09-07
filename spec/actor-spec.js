@@ -6,7 +6,7 @@ define(['src/actor.js'], function (Actor) {
                 expect(actor.state).toEqual({});
             });
         });
-        describe('role', function () {
+        describe('has one or more roles', function () {
             var actor = new Actor();
             Actor.prototype._roles['test-role'] = {
                 definition: {hasTestRole: true},
@@ -20,7 +20,7 @@ define(['src/actor.js'], function (Actor) {
                 definition: {hasLastTestRole: true},
                 members: []
             };
-            it('can be defined and assigned', function () {
+            it('that can be defined and assigned', function () {
                 expect(actor.hasTestRole).toBeFalsy();
                 expect(actor.hasAnotherTestRole).toBeFalsy();
                 expect(actor.hasLastTestRole).toBeFalsy();
@@ -30,7 +30,7 @@ define(['src/actor.js'], function (Actor) {
                 expect(actor.hasAnotherTestRole).toBeTruthy();
                 expect(actor.hasLastTestRole).toBeTruthy();
             });
-            it('can group actors by role', function () {
+            it('that group actors by role', function () {
                 expect(Actor.prototype._roles['last-test-role'].members).toContain(actor);
                 expect(actor.roles).toContain('last-test-role');
             });

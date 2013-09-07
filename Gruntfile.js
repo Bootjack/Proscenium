@@ -14,7 +14,7 @@ module.exports = function(grunt) {
 
         jasmine: {
             pivotal: {
-                src: 'src/**/*.js',
+                src: 'src/proscenium.js',
                 options: {
                     specs: 'spec/*-spec.js',
                     helpers: 'spec/*-helper.js',
@@ -66,7 +66,7 @@ module.exports = function(grunt) {
         watch: {
             scripts: {
                 files: ['src/**/*.js'],
-                tasks: ['jshint', 'requirejs:compile']
+                tasks: ['jshint', 'jasmine', 'requirejs:compile']
             },
             stylesheets: {
                 files: ['stylus/**/*.styl'],
@@ -84,7 +84,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     // Default task(s).
-    grunt.registerTask('default', ['jshint', 'jasmine', 'requirejs', 'stylus']);
+    grunt.registerTask('default', ['jshint', 'requirejs', 'stylus']);
     grunt.registerTask('test', ['jshint', 'jasmine']);
     grunt.registerTask('build', ['jshint', 'jasmine', 'requirejs', 'copy', 'stylus']);
 };

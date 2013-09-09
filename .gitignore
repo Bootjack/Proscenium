@@ -8,5 +8,8 @@ node_modules
 # Grunt
 .grunt
 
+# Unit test artifacts
+test-results.html
+
 # Build artifacts
 public/js

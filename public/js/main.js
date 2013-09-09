@@ -115,6 +115,7 @@ define('src/curtain',[], function () {
     function Curtain(config) {
         config = config || {};
         this.objects = [];
+        this.template = function () {};
         if (window && window.document) {
             if (config.element instanceof HTMLElement) {
                 this.element = config.element;
@@ -132,18 +133,13 @@ define('src/curtain',[], function () {
     };
     
     Curtain.prototype.update = function () {
-        var i, html;
-        html = '<ul>' + "\n";
-        for (i = 0; i < this.objects.length; i += 1) {
-            html += '<li>' +
-                'Light [' + i + '] is ' +
-                (this.objects[i].state.on ? 'on' : 'off') +
-                '.' +
-                '</li>' +
-                "\n";
+        if ('function' === typeof this.beforeUpdate) {
+            this.beforeUpdate();
         }
-        html += '</ul>';
-        this.element.innerHTML = html;
+        this.element.innerHTML = this.template(this);
+        if ('function' === typeof this.afterUpdate) {
+            this.beforeUpdate();
+        } 
         return this;
     };
     
@@ -318,6 +314,20 @@ require(['src/proscenium.js'], function (Proscenium) {
     curtain = Proscenium.curtain('lights', {
         element: 'curtain-lights'
     });
+    curtain.template = function (obj) {
+        var i, html;
+        html = '<ul>' + "\n";
+        for (i = 0; i < obj.objects.length; i += 1) {
+            html += '<li>' +
+                'Light [' + i + '] is ' +
+                (obj.objects[i].state.on ? 'on' : 'off') +
+                '.' +
+                '</li>' +
+                "\n";
+        }
+        html += '</ul>';
+        return html;
+    };
     Proscenium.role('light', {
         switch: function (direction) {
             if (!direction && !this.state.on) {

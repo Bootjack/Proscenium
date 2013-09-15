@@ -8,9 +8,9 @@ define([], function() {
             return new F();
         },
         mixin: function (Self, Ref) {
-            var p;
-            for (p in Ref.prototype) {
-                Self.prototype[p] = Ref.prototype[p];
+            var p, ref = new Ref();
+            for (p in ref) {
+                Self.prototype[p] = ref[p];
             }
         }
     };

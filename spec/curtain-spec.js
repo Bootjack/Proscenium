@@ -1,4 +1,4 @@
-define(['src/curtain.js', 'src/emitter.js'], function (Curtain, Emitter) {
+define(['src/curtain', 'src/emitter'], function (Curtain, Emitter) {
     describe('Curtain', function () {
         var actor, curtain;
         curtain = new Curtain({id: 'test'});

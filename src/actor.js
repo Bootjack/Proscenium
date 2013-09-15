@@ -1,10 +1,12 @@
 define(['src/emitter', 'src/util'], function (Emitter, util) {
     'use strict';
     
-    function Actor() {
+    function Actor(config) {
+        config = config || {};
         // The state object stores all data about the actor so that it can be saved and restored.
         this.state = {};
         this.roles = [];
+        this.id = config.id;
         return this;
     }
 
@@ -13,6 +15,7 @@ define(['src/emitter', 'src/util'], function (Emitter, util) {
     Actor.prototype.set = function (name, value) {
         this.state[name] = value;
         this.trigger('update');
+        return this;
     };
     
     // A shared set of role definitions. Proscenium.role() adds to this list.
@@ -36,7 +39,11 @@ define(['src/emitter', 'src/util'], function (Emitter, util) {
                 role.members.push(this);
                 // Copy properties from role definition to actor
                 for (property in role.definition) {
-                    this[property] = role.definition[property];
+                    if ('init' === property) {
+                        role.definition.init.call(this);
+                    } else {
+                        this[property] = role.definition[property];
+                    }
                 }
             } else {
                 throw new Error('Actor role "' + roles[i] + '" is not defined');

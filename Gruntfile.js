@@ -41,7 +41,18 @@ module.exports = function(grunt) {
             compile: {
                 options: {
                     baseUrl: './',
-                    name: 'src/app.js',
+                    name: 'src/proscenium.js',
+                    optimize: 'none',
+                    out: 'public/js/proscenium.js',
+                    include: [
+                        'bower_components/modernizr/modernizr.js'
+                    ]
+                }
+            },
+            example: {
+                options: {
+                    baseUrl: './',
+                    name: 'examples/life.js',
                     optimize: 'none',
                     out: 'public/js/main.js',
                     include: [

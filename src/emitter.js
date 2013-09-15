@@ -5,7 +5,6 @@ define([], function () {
     }
     Emitter.prototype.trigger = function (event, data) {
         var i;
-        this._events = this._events || {};
         if (this._events[event] && this._events[event].length) {
             for (i = 0; i < this._events[event].length; i += 1) {
                 if ('function' === typeof this._events[event][i]) {

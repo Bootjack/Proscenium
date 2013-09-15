@@ -27,10 +27,12 @@ define([
         },
         
         actor: function (id, config) {
+            config = config || {};
             return this.create(Actor, 'actors', id, config);
         },
 
         curtain: function (id, config) {
+            config = config || {};
             return this.create(Curtain, 'curtains', id, config);
         },
 
@@ -42,10 +44,12 @@ define([
         },
         
         scene: function (id, config) {
+            config = config || {};
             return this.create(Scene, 'scenes', id, config);
         },
         
         stage: function (id, config) {
+            config = config || {};
             return this.create(Stage, 'stages', id, config);
         }
     };

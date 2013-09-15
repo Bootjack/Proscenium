@@ -6,7 +6,6 @@ define('src/emitter',[], function () {
     }
     Emitter.prototype.trigger = function (event, data) {
         var i;
-        this._events = this._events || {};
         if (this._events[event] && this._events[event].length) {
             for (i = 0; i < this._events[event].length; i += 1) {
                 if ('function' === typeof this._events[event][i]) {
@@ -46,9 +45,9 @@ define('src/util',[], function() {
             return new F();
         },
         mixin: function (Self, Ref) {
-            var p;
-            for (p in Ref.prototype) {
-                Self.prototype[p] = Ref.prototype[p];
+            var p, ref = new Ref();
+            for (p in ref) {
+                Self.prototype[p] = ref[p];
             }
         }
     };
@@ -57,10 +56,12 @@ define('src/util',[], function() {
 define('src/actor',['src/emitter', 'src/util'], function (Emitter, util) {
     
     
-    function Actor() {
+    function Actor(config) {
+        config = config || {};
         // The state object stores all data about the actor so that it can be saved and restored.
         this.state = {};
         this.roles = [];
+        this.id = config.id;
         return this;
     }
 
@@ -69,6 +70,7 @@ define('src/actor',['src/emitter', 'src/util'], function (Emitter, util) {
     Actor.prototype.set = function (name, value) {
         this.state[name] = value;
         this.trigger('update');
+        return this;
     };
     
     // A shared set of role definitions. Proscenium.role() adds to this list.
@@ -92,7 +94,11 @@ define('src/actor',['src/emitter', 'src/util'], function (Emitter, util) {
                 role.members.push(this);
                 // Copy properties from role definition to actor
                 for (property in role.definition) {
-                    this[property] = role.definition[property];
+                    if ('init' === property) {
+                        role.definition.init.call(this);
+                    } else {
+                        this[property] = role.definition[property];
+                    }
                 }
             } else {
                 throw new Error('Actor role "' + roles[i] + '" is not defined');
@@ -109,12 +115,37 @@ define('src/actor',['src/emitter', 'src/util'], function (Emitter, util) {
     return Actor;
 });
 
-define('src/curtain',[], function () {
+define('src/collection',[], function () {
+    function Collection() {
+        this.objects = [];
+    }
+    
+    Collection.prototype.update = function () {
+        this.objects = this.objects || [];
+    };
+    
+    Collection.prototype.add = function (object) {
+        var self = this;
+        this.objects = this.objects || [];
+        function boundListener() {
+            self.update(arguments);
+        }
+        object.on('update', boundListener);
+        this.objects.push(object);
+        this.update();
+        return this;
+    };
+    
+    return Collection;
+});
+
+define('src/curtain',['src/collection', 'src/util'], function (Collection, util) {
     
     
     function Curtain(config) {
         config = config || {};
-        this.objects = [];
+        this._updating = false;
+        this.actors = this.objects;
         this.template = function () {};
         if (window && window.document) {
             if (config.element instanceof HTMLElement) {
@@ -128,29 +159,28 @@ define('src/curtain',[], function () {
         }
     }
     
+    util.mixin(Curtain, Collection);
+    
     Curtain.prototype.destroy = function () {
         this.element.parentNode.removeChild(this.element);
     };
     
     Curtain.prototype.update = function () {
-        if ('function' === typeof this.beforeUpdate) {
-            this.beforeUpdate();
-        }
-        this.element.innerHTML = this.template(this);
-        if ('function' === typeof this.afterUpdate) {
-            this.beforeUpdate();
-        } 
-        return this;
-    };
-    
-    Curtain.prototype.add = function (object) {
         var self = this;
-        function boundListener() {
-            self.update(arguments);
+        if (!this._updating) {
+            this._updating = true;
+            if ('function' === typeof this.beforeUpdate) {
+                this.beforeUpdate();
+            }
+            this.element.innerHTML = this.template(this);
+            if ('function' === typeof this.afterUpdate) {
+                this.beforeUpdate();
+            }
+            setTimeout(function () {
+                self._updating = false;
+            }, 5);
         }
-        object.on('update', boundListener);
-        this.objects.push(object);
-        this.update();
+        return this;
     };
     
     return Curtain;
@@ -158,97 +188,133 @@ define('src/curtain',[], function () {
 
 define('src/scene',[], function () {
     
-    return {};
+    function Scene (config) {
+        config = config || {};
+        this.id = config.id;
+        this.actors = [];
+        this.conditions = [];
+        this.paused = false;
+        this.stages = {};
+        this._pausedAt = 0;
+        this._paused = 0;
+        this._throttle = 60;
+        this._framerate = 0;
+        this._lastFrame = 0;
+        return this;
+    }
+    
+    Scene.prototype.load = function (actor) {
+        if (actor) {
+            this.actors.push(actor);
+        }
+        return this;
+    };
+    
+    Scene.prototype.unload = function (id) {
+        var index = this.actors.indexOf(id);
+        if (-1 !== index) {
+            this.actors.splice(index, 1);
+        }
+        return this;
+    };
+    
+    Scene.prototype.init = function (config) {
+        var i;
+        config = config || {};
+        this.stages = config.stages || this.stages;
+        for (i = 0; i < this.actors.length; i += 1) {
+            if ('function' === typeof this.actors[i].init) {
+                this.actors[i].init(config);
+            }
+        }
+        return this;
+    };
+    
+    Scene.prototype.evaluate = function (interval) {
+        var i, evaluations, evaluation;
+        evaluations = [];
+        if ('function' === typeof this.always) {
+            this.always(interval);
+        }
+        for (i in this.stages) {
+            stages[i].evaluate(interval);
+        }
+        for (i = 0; i < this.actors.length; i += 1) {
+            if ('function' === typeof this.actors[i].evaluate) {
+                evaluation = this.actors[i].evaluate(interval);
+                if (evaluation) {
+                    evaluations.push({
+                        actor: this.actors[i],
+                        evaluate: evaluation
+                    });                    
+                }
+            }
+        }
+        //console.log(evaluations.length);
+        for (i = 0; i < evaluations.length; i += 1) {
+            if ('function' === typeof evaluations[i].evaluate) {
+                evaluations[i].evaluate.call(evaluations[i].actor);
+            }
+        }
+        for (i = 0; i < this.conditions.length; i += 1) {
+            if (this.condition[i].test()) {
+                this.condition[i].run();
+            }
+        }
+    };
+    
+    Scene.prototype.pause = function () {
+        if (!this.paused) {
+            this.paused = true;
+            this._pausedAt = new Date().getTime();
+        }
+        return this;
+    };
+    
+    Scene.prototype.unpause = function () {
+        if (this.paused) {
+            this.paused = false;
+            this._paused += new Date().getTime() - this._pausedAt;
+        }
+        return this;
+    };
+    
+    Scene.prototype.run = function () {
+        var interval, now, timeout;
+        now = new Date().getTime();
+        timeout = 1000 / this._throttle;
+        interval = now - this._lastFrame;
+        this._lastFrame = now;
+        if (!this.paused) {
+            this.evaluate(interval);
+            now = new Date().getTime();
+            interval = now - this._lastFrame;
+            if (interval < timeout) {
+                timeout -= interval;
+                this._framerate = this._throttle;
+            } else {
+                timeout = interval % timeout;
+                this._framerate = Math.floor(1000 / interval);
+            }
+        }
+        this._timeout = setTimeout(
+            (function (self) {
+                return function () {
+                    self.run();
+                };
+            }(this)),
+            timeout
+        );
+        return this;
+    };
+    
+    return Scene;
 });
 
 define('src/stage',[], function () {
     
     return {};
 });
-
-/* What is a game?
- * 
- * A game is a set of objects, each assigned an initial state. The game 
- * challenges the player to manipulate the state of the game objects
- * into a winning state while avoiding any potential losing states.
- * The game may have a single winning state, in which case the challenge
- * is inherent to the difficulty of altering the state of game objects.
- * Or each player may have their own winning state, in which case the 
- * challenge emerges from competing players attempting to achieve 
- * conflicting game states so that either they win, their opponents
- * lose, or both. 
- * 
- * Scenes
- * 
- * A scene is a segment of gameplay having a defined initial state and
- * one or more end states. One scene may comprise an entire game, or a
- * game may require the player to progress through multiple scenes.
- * The initial state of a scene may be influenced by the end states of
- * previous scenes. This is achieved by saving the state of objects from
- * the end of a scene to a global set of game objects. Subsequent scenes
- * may load those global objects into the initial scene state.
- * 
- * This may seem like a tedious distinction, but it is an important construct
- * for persisting the game world efficiently. There's nothing stopping a
- * complex game world from persisting every game object in perpetuity within
- * a single scene, but this is likely to be inefficient. If we can define
- * individual scenes that can be loaded, run, and discarded at any time, we
- * can likely optimize the gameplay during each scene, keeping complexity
- * manageable and rendering fast. The global objects persisted between scenes
- * are static, but allow the scenes to load in a way that is consistent with
- * experiences the player has already had in other scenes. Note that none
- * of this limits the scenes to a linear progression.
- * 
- * Stage
- * 
- * Scenes are presented on the stage. As in a play, when the scene needs to
- * change, we probably want to hide that activity behind a curtain. This is
- * where the interface comes in.
- * 
- * Curtain
- * 
- * The curtain is the interface layer on top of the stage.  The most basic
- * function of the curtain is to transition between scenes. Most likely
- * the first thing a player encounters is a gameplay selection interface.
- * This could be a selection of unlocked levels, single- or multi-player
- * game types, or configuration options. The curtain also manages any
- * loading states to inform the player that the game is working and will
- * proceed to the next scene as soon as it's available.
- * 
- * What makes the curtain such an apt metaphor is that it also persists on top
- * of the stage throughout scenes. The curtain is the medium through which
- * the player interacts with the scenes on the stage. It captures player input
- * like keyboard or mouse controls and provides meta-information about the
- * scene and objects.
- * 
- * This is how non-visual gameplay becomes a viable option. In such a game,
- * there may be no rendered visuals of the game objects because their visual 
- * relationships are irrelevant to gameplay. In such a case it feels as if the 
- * game *is* the interface. This is almost true. A typical card game like Hearts
- * illustrates the distinction between interface and stage in such a case.
- * The interface shows the player the cards in their hand, but the visual
- * relationship among those cards and between them and the other cards in the 
- * game is irrelevant. The world tracks the state of each card from the deck
- * to the players hand to the current trick to the winning player's pile.
- * The interface shows the player information about the game state and handles
- * the player's actions, including showing which actions are available at each
- * point in the game. And yes, a card game *could* include a rendered scene
- * to track the position of each card, animated smoothly at 60 fps. It could 
- * also include a physics engine to calculate the friction of cards sliding
- * across the table. That may even be a really cool idea.
- * 
- * The point is that a game can exist without a rendered scene, or physics,
- * or sound. What's left when those elements are removed is the abstraction
- * of a game that this framework aims to manage. 
- * 
- * Hierarchy
- * 
- * Proscenium (both constructor and global namespace)
- *   - world
- *   - Curtain
- *   - Actor
- *   - Scene
- */
 
 define('src/proscenium.js',[
     'src/actor',
@@ -279,10 +345,12 @@ define('src/proscenium.js',[
         },
         
         actor: function (id, config) {
+            config = config || {};
             return this.create(Actor, 'actors', id, config);
         },
 
         curtain: function (id, config) {
+            config = config || {};
             return this.create(Curtain, 'curtains', id, config);
         },
 
@@ -294,10 +362,12 @@ define('src/proscenium.js',[
         },
         
         scene: function (id, config) {
+            config = config || {};
             return this.create(Scene, 'scenes', id, config);
         },
         
         stage: function (id, config) {
+            config = config || {};
             return this.create(Stage, 'stages', id, config);
         }
     };
@@ -306,42 +376,116 @@ define('src/proscenium.js',[
 });
 
 require(['src/proscenium.js'], function (Proscenium) {
-    var curtain, element, wrapper;
-    element = document.createElement('div');
-    element.id = 'curtain-lights';
-    wrapper = document.getElementById('page-wrapper');
-    wrapper.appendChild(element);
-    curtain = Proscenium.curtain('lights', {
-        element: 'curtain-lights'
+    var i, j, cell, column, row, WIDTH, HEIGHT;
+    WIDTH = 20;
+    HEIGHT = 20;
+    column = [];
+    row  = [];
+    
+    Proscenium.role('cell', {
+        init: function () {
+            this.state.alive = false;
+            this.neighbors = this.neighbors || [];
+        },
+        evaluate: function () {
+            var i, count, execute;
+            count = 0;
+            for (i = 0; i < this.neighbors.length; i += 1) {
+                if (this.neighbors[i].state.alive) {
+                    count += 1;
+                }
+            }
+            if (!this.state.alive && 3 === count) {
+                execute = function () {
+                    this.set('alive', true);
+                };
+            } else if (this.state.alive && (count < 2 || count > 3)) {
+                execute = function () {
+                    this.set('alive', false);
+                }
+            } else {
+                execute = false;
+            }
+            return execute;
+        }
     });
-    curtain.template = function (obj) {
-        var i, html;
+    
+    Proscenium.curtain('cells');
+    Proscenium.curtains.cells.template = function (obj) {
+        var i, classes, html;
         html = '<ul>' + "\n";
         for (i = 0; i < obj.objects.length; i += 1) {
-            html += '<li>' +
-                'Light [' + i + '] is ' +
-                (obj.objects[i].state.on ? 'on' : 'off') +
-                '.' +
-                '</li>' +
-                "\n";
+            classes = ['cell'];
+            if (obj.objects[i].state.alive) {
+                classes.push('is-alive');
+            }
+            if (0 === obj.objects[i].state.x) {
+                classes.push('first-in-row');
+            }
+            html += '<li class="' + classes.join(' ') + '">' + '</li>' + "\n";            
         }
         html += '</ul>';
         return html;
     };
-    Proscenium.role('light', {
-        switch: function (direction) {
-            if (!direction && !this.state.on) {
-                direction = 'on';                    
-            }
-            this.set('on', ('on' === direction || 'up' === direction));
+    document.getElementById('page-wrapper').appendChild(Proscenium.curtains.cells.element);
+
+    Proscenium.scene('main');
+    Proscenium.scenes.main.always = function (interval) {
+        if (this._framerate < 60) {
+            console.log(this._framerate + 'fps - ' + interval + 'ms');            
         }
-    });
-    Proscenium.actor('light-1').role('light').switch('off');
-    curtain.add(Proscenium.actors['light-1']);
+    };
+
+    for (i = 0; i < WIDTH; i += 1) {
+        column[i] = [];
+        for (j = 0; j < HEIGHT; j += 1) {
+            row[j] = [];
+            cell = Proscenium.actor().role('cell');
+            cell.state.y = i;
+            cell.state.x = j;
+            cell.state.alive = (Math.random() > 0.8);
+            column[i].push(cell);
+            row[j].push(cell);
+            Proscenium.curtains.cells.add(cell);
+            Proscenium.scenes.main.load(cell);
+        }
+    }
+    
+    for (i = 0; i < column.length; i += 1) {
+        for (j = 0; j < column[i].length; j += 1) {
+            if (j > 0) {
+                column[i][j].neighbors.push(column[i][j - 1]);
+            }
+            if (j < row.length - 1) {
+                column[i][j].neighbors.push(column[i][j + 1]);
+            }
+            if (i > 0) {
+                column[i][j].neighbors.push(column[i - 1][j]);
+                if (j > 0) {
+                    column[i][j].neighbors.push(column[i - 1][j - 1]);
+                }
+                if (j < row.length - 1) {
+                    column[i][j].neighbors.push(column[i - 1][j + 1]);
+                }
+            }
+            if (i < column.length - 1) {
+                column[i][j].neighbors.push(column[i + 1][j]);
+                if (j > 0) {
+                    column[i][j].neighbors.push(column[i + 1][j - 1]);
+                }
+                if (j < row.length - 1) {
+                    column[i][j].neighbors.push(column[i + 1][j + 1]);
+                }                
+            }
+        }
+    }
+    
+    Proscenium.scenes.main.run();
+    
     window.Proscenium = Proscenium;
 });
 
-define("src/app.js", function(){});
+define("examples/life.js", function(){});
 
 /*!
  * Modernizr v2.6.2

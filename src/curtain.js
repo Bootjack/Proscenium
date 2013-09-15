@@ -1,9 +1,10 @@
-define([], function () {
+define(['src/collection', 'src/util'], function (Collection, util) {
     'use strict';
     
     function Curtain(config) {
         config = config || {};
-        this.objects = [];
+        this._updating = false;
+        this.actors = this.objects;
         this.template = function () {};
         if (window && window.document) {
             if (config.element instanceof HTMLElement) {
@@ -17,29 +18,28 @@ define([], function () {
         }
     }
     
+    util.mixin(Curtain, Collection);
+    
     Curtain.prototype.destroy = function () {
         this.element.parentNode.removeChild(this.element);
     };
     
     Curtain.prototype.update = function () {
-        if ('function' === typeof this.beforeUpdate) {
-            this.beforeUpdate();
-        }
-        this.element.innerHTML = this.template(this);
-        if ('function' === typeof this.afterUpdate) {
-            this.beforeUpdate();
-        } 
-        return this;
-    };
-    
-    Curtain.prototype.add = function (object) {
         var self = this;
-        function boundListener() {
-            self.update(arguments);
+        if (!this._updating) {
+            this._updating = true;
+            if ('function' === typeof this.beforeUpdate) {
+                this.beforeUpdate();
+            }
+            this.element.innerHTML = this.template(this);
+            if ('function' === typeof this.afterUpdate) {
+                this.beforeUpdate();
+            }
+            setTimeout(function () {
+                self._updating = false;
+            }, 5);
         }
-        object.on('update', boundListener);
-        this.objects.push(object);
-        this.update();
+        return this;
     };
     
     return Curtain;

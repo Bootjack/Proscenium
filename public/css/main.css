@@ -164,7 +164,20 @@ table{border-collapse:collapse;border-spacing:0}
 /* line 1 : /Users/jxh00/Documents/Other/Proscenium/stylus/layout/one-column.styl */
 .l-one-column{bottom:0;height:100%;overflow:hidden;position:absolute;top:0;width:100%}
 
-/* line 8 : /Users/jxh00/Documents/Other/Proscenium/stylus/themes/default.styl */
+/* line 8 : /Users/jxh00/Documents/Other/Proscenium/stylus/modules/life.styl */
+
+/* line 1 : /Users/jxh00/Documents/Other/Proscenium/stylus/modules/life.styl */
+.cell{background-color:#f5deb3;border:1px dotted #808080;display:block;float:left;height:1em;list-style:none;margin:0;padding:0;width:1em;}
+
+/* line 11 : /Users/jxh00/Documents/Other/Proscenium/stylus/modules/life.styl */
+.cell.first-in-row{clear:left}
+
+/* line 13 : /Users/jxh00/Documents/Other/Proscenium/stylus/states/life.styl */
+
+/* line 1 : /Users/jxh00/Documents/Other/Proscenium/stylus/states/life.styl */
+.cell.is-alive{background-color:#008080}
+
+/* line 3 : /Users/jxh00/Documents/Other/Proscenium/stylus/themes/default.styl */
 
 /* line 1 : /Users/jxh00/Documents/Other/Proscenium/stylus/themes/default.styl */
 body{background-color:#f5f5f5}

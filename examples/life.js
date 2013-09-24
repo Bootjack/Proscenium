@@ -35,29 +35,26 @@ require(['src/proscenium.js'], function (Proscenium) {
     
     Proscenium.curtain('cells');
     Proscenium.curtains.cells.template = function (obj) {
-        var i, classes, html;
-        html = '<ul>' + "\n";
-        for (i = 0; i < obj.objects.length; i += 1) {
-            classes = ['cell'];
+        var i, count, html;
+        for (i = 0, count = 0; i < obj.objects.length; i += 1) {
             if (obj.objects[i].state.alive) {
-                classes.push('is-alive');
+                count += 1;
             }
-            if (0 === obj.objects[i].state.x) {
-                classes.push('first-in-row');
-            }
-            html += '<li class="' + classes.join(' ') + '">' + '</li>' + "\n";            
         }
-        html += '</ul>';
+        html = count + ' live cell' + (1 === count ? '' : 's') + ' at ' + (Proscenium.actors.debug.state.framerate || '0') + 'fps';
         return html;
     };
     document.getElementById('page-wrapper').appendChild(Proscenium.curtains.cells.element);
 
     Proscenium.scene('main');
     Proscenium.scenes.main.always = function (interval) {
-        if (this._framerate < 60) {
-            console.log(this._framerate + 'fps - ' + interval + 'ms');            
-        }
+        Proscenium.actors.debug.set('framerate', this._framerate);
     };
+    
+    Proscenium.stage('paper');
+    
+    Proscenium.actor('debug');
+    Proscenium.curtains.cells.add(Proscenium.actors.debug);
 
     for (i = 0; i < WIDTH; i += 1) {
         column[i] = [];

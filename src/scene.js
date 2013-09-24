@@ -48,9 +48,6 @@ define([], function () {
         if ('function' === typeof this.always) {
             this.always(interval);
         }
-        for (i in this.stages) {
-            stages[i].evaluate(interval);
-        }
         for (i = 0; i < this.actors.length; i += 1) {
             if ('function' === typeof this.actors[i].evaluate) {
                 evaluation = this.actors[i].evaluate(interval);
@@ -62,11 +59,13 @@ define([], function () {
                 }
             }
         }
-        //console.log(evaluations.length);
         for (i = 0; i < evaluations.length; i += 1) {
             if ('function' === typeof evaluations[i].evaluate) {
                 evaluations[i].evaluate.call(evaluations[i].actor);
             }
+        }
+        for (i in this.stages) {
+            stages[i].evaluate(interval);
         }
         for (i = 0; i < this.conditions.length; i += 1) {
             if (this.condition[i].test()) {

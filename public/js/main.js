@@ -236,9 +236,6 @@ define('src/scene',[], function () {
         if ('function' === typeof this.always) {
             this.always(interval);
         }
-        for (i in this.stages) {
-            stages[i].evaluate(interval);
-        }
         for (i = 0; i < this.actors.length; i += 1) {
             if ('function' === typeof this.actors[i].evaluate) {
                 evaluation = this.actors[i].evaluate(interval);
@@ -250,11 +247,13 @@ define('src/scene',[], function () {
                 }
             }
         }
-        //console.log(evaluations.length);
         for (i = 0; i < evaluations.length; i += 1) {
             if ('function' === typeof evaluations[i].evaluate) {
                 evaluations[i].evaluate.call(evaluations[i].actor);
             }
+        }
+        for (i in this.stages) {
+            this.stages[i].evaluate(interval);
         }
         for (i = 0; i < this.conditions.length; i += 1) {
             if (this.condition[i].test()) {
@@ -313,7 +312,8 @@ define('src/scene',[], function () {
 
 define('src/stage',[], function () {
     
-    return {};
+    function Stage() {}
+    return Stage;
 });
 
 define('src/proscenium.js',[
@@ -333,6 +333,7 @@ define('src/proscenium.js',[
         _scenes: 0,
         stages: {},
         _stages: 0,
+        roles: Actor.prototype._roles,
         
         create: function (Constructor, collection, id, config) {
             config = config || ('string' !== typeof id && id);
@@ -376,11 +377,12 @@ define('src/proscenium.js',[
 });
 
 require(['src/proscenium.js'], function (Proscenium) {
-    var i, j, cell, column, row, WIDTH, HEIGHT;
-    WIDTH = 20;
+    var i, j, cell, column, row, paper, WIDTH, HEIGHT;
+    WIDTH = 100;
     HEIGHT = 20;
     column = [];
     row  = [];
+    paper = window.paper;
     
     Proscenium.role('cell', {
         init: function () {
@@ -427,13 +429,13 @@ require(['src/proscenium.js'], function (Proscenium) {
     Proscenium.scenes.main.always = function (interval) {
         Proscenium.actors.debug.set('framerate', this._framerate);
     };
-    
+       
     Proscenium.actor('debug');
     Proscenium.curtains.cells.add(Proscenium.actors.debug);
 
-    for (i = 0; i < WIDTH; i += 1) {
+    for (i = 0; i < HEIGHT; i += 1) {
         column[i] = [];
-        for (j = 0; j < HEIGHT; j += 1) {
+        for (j = 0; j < WIDTH; j += 1) {
             row[j] = [];
             cell = Proscenium.actor().role('cell');
             cell.state.y = i;
@@ -474,6 +476,39 @@ require(['src/proscenium.js'], function (Proscenium) {
             }
         }
     }
+
+    Proscenium.stage('paper');
+    document.getElementById('page-wrapper').appendChild(document.createElement('canvas'));
+    paper.setup(document.getElementsByTagName('canvas')[0]);
+    (function () {
+        var i, cells, dot, dots, protoDot, radius;
+        radius = 5;
+        paper.view.viewSize = new paper.Size(2 * radius * WIDTH, 2 * radius * HEIGHT);
+        cells = Proscenium.roles.cell.members;
+        protoDot = new paper.Path.Circle(new paper.Point(0, 0), 1.1 * radius);
+        protoDot.fillColor = new paper.Color(0.2, 0.8, 0.9);
+        dot = new paper.Symbol(protoDot);
+        dots = [];
+
+        for (i = 0; i < cells.length; i += 1) {
+            dots.push(
+                dot.place(new paper.Point(
+                    radius + cells[i].state.x * 2 * radius,
+                    radius + cells[i].state.y * 2 * radius
+                ))
+            );
+        }
+
+        Proscenium.stages.paper.evaluate = function () {
+            for (i = 0; i < cells.length; i += 1) {
+                if (dots[i].visible !== cells[i].state.alive) {
+                    dots[i].visible = cells[i].state.alive;                    
+                }
+            }
+            paper.view.draw();
+        };
+    }());
+    //Proscenium.scenes.main.stages['paper'] = Proscenium.stages.paper;
     
     Proscenium.scenes.main.run();
     

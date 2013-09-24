@@ -65,7 +65,7 @@ define([], function () {
             }
         }
         for (i in this.stages) {
-            stages[i].evaluate(interval);
+            this.stages[i].evaluate(interval);
         }
         for (i = 0; i < this.conditions.length; i += 1) {
             if (this.condition[i].test()) {

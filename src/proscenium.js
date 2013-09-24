@@ -15,6 +15,7 @@ define([
         _scenes: 0,
         stages: {},
         _stages: 0,
+        roles: Actor.prototype._roles,
         
         create: function (Constructor, collection, id, config) {
             config = config || ('string' !== typeof id && id);

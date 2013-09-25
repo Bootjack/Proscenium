@@ -14,10 +14,13 @@ Now you can view file:///[path/to/repo]/public/index.html in your browser
 
 ## Usage
 
-Doesn't do too much yet. Only Actor and Curtain are implemented, and those only just barely so. The index.html page runs a hello world game loaded from src/app.js. You can poke around in that file, or just alter the game state in your browser console. Try `Proscenium.actors['light-1'].switch()` to see the curtain use evented updating. The game world loads with one Actor assigned the role of "light," which implements simple light switch behavior: a state of on or off and a function to toggle between states or to a given state.
+Currently implemented with Conway's Game of Life starting from the acorn pattern. But the important part
+is that this demo game uses Proscenium actors, stages, and a scene to iterate and render the game world.
+The debug output is also represented using a curtain.
 
-The curtain also supports adding more actors to track.
+The stage is little more than a shell for stage-type logic. It only requires an implementation of an evaluate()
+method on it in order to run as part of a scene.
 
-    Proscenium.curtains['lights'].add(
-        Proscenium.actor('light-2').role('light')
-    );
+Latest benchmarking suggests that 60 fps should be possible for up to 1000 actors being redrawn each frame,
+with an inversely proportional effect on framerate as that number increases (doubling the number of redrawn 
+actors halves the effective framerate).

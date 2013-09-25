@@ -1,7 +1,21 @@
 require(['src/proscenium.js'], function (Proscenium) {
     var i, j, cell, column, row, paper, WIDTH, HEIGHT;
-    WIDTH = 100;
-    HEIGHT = 20;
+    WIDTH = 80;
+    HEIGHT = 50;
+    ACORN = (function () {
+        var ox, oy;
+        ox = Math.floor(0.75 * WIDTH + Math.random() * 0.1 * WIDTH);
+        oy = Math.floor(0.1 * HEIGHT + Math.random() * 0.2 * HEIGHT);
+        return function (x, y) {
+            var dx, dy, value;
+            dx = x - ox;
+            dy = y - oy;
+            if ((0 === dy && -1 !== [-3, -2, 1, 2, 3].indexOf(dx)) || (-1 === dy && 0 === dx) || (-2 === dy && -2 === dx)) {
+                value = true;
+            }
+            return !!value;
+        }
+    }());
     column = [];
     row  = [];
     paper = window.paper;
@@ -14,6 +28,7 @@ require(['src/proscenium.js'], function (Proscenium) {
         evaluate: function () {
             var i, count, execute;
             count = 0;
+            /*
             for (i = 0; i < this.neighbors.length; i += 1) {
                 if (this.neighbors[i].state.alive) {
                     count += 1;
@@ -30,7 +45,9 @@ require(['src/proscenium.js'], function (Proscenium) {
             } else {
                 execute = false;
             }
-            return execute;
+             return execute;
+            */
+            return false;
         }
     });
     
@@ -51,7 +68,8 @@ require(['src/proscenium.js'], function (Proscenium) {
     Proscenium.scenes.main.always = function (interval) {
         Proscenium.actors.debug.set('framerate', this._framerate);
     };
-       
+    //Proscenium.scenes.main._throttle = 1;
+    
     Proscenium.actor('debug');
     Proscenium.curtains.cells.add(Proscenium.actors.debug);
 
@@ -60,9 +78,9 @@ require(['src/proscenium.js'], function (Proscenium) {
         for (j = 0; j < WIDTH; j += 1) {
             row[j] = [];
             cell = Proscenium.actor().role('cell');
-            cell.state.y = i;
             cell.state.x = j;
-            cell.state.alive = (Math.random() > 0.8);
+            cell.state.y = i;
+            cell.state.alive = ACORN(j, i);
             column[i].push(cell);
             row[j].push(cell);
             Proscenium.curtains.cells.add(cell);
@@ -99,6 +117,60 @@ require(['src/proscenium.js'], function (Proscenium) {
         }
     }
 
+    Proscenium.stage('life');
+    (function () {
+        var i, all, live;
+        all = Proscenium.roles.cell.members;
+        live = [];
+
+        function test(cell) {
+            var n, count, value;
+            count = 0;
+            for (n = 0; n < cell.neighbors.length; n += 1) {
+                if (cell.neighbors[n].state.alive) {
+                    count += 1;
+                }
+            }
+            if (3 === count) {
+                value = true;
+            } else if (cell.state.alive && 2 === count) {
+                value = true;
+            }
+            return value;
+        }
+        
+        for (i = 0; i < all.length; i += 1) {
+            if (all[i].state.alive) {
+                live.push(all[i]);
+            }
+        }
+        
+        Proscenium.stages.life.evaluate = function () {
+            var i, n, cell, neighbor, survivors;
+            survivors = [];
+            while (cell = live.pop()) {
+                if (test(cell)) {
+                    survivors.push(cell);
+                }
+                for (n = 0; n < cell.neighbors.length; n += 1) {
+                    neighbor = cell.neighbors[n];
+                    if (!neighbor.state.alive && -1 === survivors.indexOf(neighbor)) {
+                        if (test(neighbor)) {
+                            survivors.push(neighbor);
+                        }
+                    }
+                }
+            }
+            for (i = 0; i < all.length; i += 1) {
+                all[i].state.alive = false
+            }
+            while (cell = survivors.pop()) {
+                cell.state.alive = true;
+                live.push(cell);
+            }
+        };
+    }());
+
     Proscenium.stage('paper');
     document.getElementById('page-wrapper').appendChild(document.createElement('canvas'));
     paper.setup(document.getElementsByTagName('canvas')[0]);
@@ -123,13 +195,13 @@ require(['src/proscenium.js'], function (Proscenium) {
 
         Proscenium.stages.paper.evaluate = function () {
             for (i = 0; i < cells.length; i += 1) {
-                if (dots[i].visible !== cells[i].state.alive) {
-                    dots[i].visible = cells[i].state.alive;                    
-                }
+                dots[i].visible = cells[i].state.alive;                    
             }
             paper.view.draw();
         };
     }());
+
+    Proscenium.scenes.main.stages['life'] = Proscenium.stages.life;
     Proscenium.scenes.main.stages['paper'] = Proscenium.stages.paper;
     
     Proscenium.scenes.main.run();

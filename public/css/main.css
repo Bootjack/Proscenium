@@ -162,9 +162,9 @@ table{border-collapse:collapse;border-spacing:0}
 /* line 29 : /Users/jxh00/Documents/Other/Proscenium/stylus/layout/one-column.styl */
 
 /* line 1 : /Users/jxh00/Documents/Other/Proscenium/stylus/layout/one-column.styl */
-.l-one-column{bottom:0;height:100%;overflow:hidden;position:absolute;top:0;width:100%}
+.l-one-column{bottom:0;min-height:100%;position:absolute;top:0;width:100%}
 
-/* line 8 : /Users/jxh00/Documents/Other/Proscenium/stylus/modules/life.styl */
+/* line 7 : /Users/jxh00/Documents/Other/Proscenium/stylus/modules/life.styl */
 
 /* line 1 : /Users/jxh00/Documents/Other/Proscenium/stylus/modules/life.styl */
 .cell{background-color:#f5deb3;border:1px dotted #808080;display:block;float:left;height:1em;list-style:none;margin:0;padding:0;width:1em;}

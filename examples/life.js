@@ -64,7 +64,9 @@ require(['src/proscenium.js'], function (Proscenium) {
     };
     document.getElementById('page-wrapper').appendChild(Proscenium.curtains.cells.element);
 
-    Proscenium.scene('main');
+    Proscenium.scene('main', {
+        //throttle: 10
+    });
     Proscenium.scenes.main.always = function (interval) {
         Proscenium.actors.debug.set('framerate', this._framerate);
     };
@@ -201,8 +203,8 @@ require(['src/proscenium.js'], function (Proscenium) {
         };
     }());
 
-    Proscenium.scenes.main.stages['life'] = Proscenium.stages.life;
-    Proscenium.scenes.main.stages['paper'] = Proscenium.stages.paper;
+    Proscenium.scenes.main.stages.push(Proscenium.stages.life);
+    Proscenium.scenes.main.stages.push(Proscenium.stages.paper);
     
     Proscenium.scenes.main.run();
     

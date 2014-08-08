@@ -194,10 +194,10 @@ define('src/scene',[], function () {
         this.actors = [];
         this.conditions = [];
         this.paused = false;
-        this.stages = {};
+        this.stages = [];
         this._pausedAt = 0;
         this._paused = 0;
-        this._throttle = 60;
+        this._throttle = config.throttle || 60;
         this._framerate = 0;
         this._lastFrame = 0;
         return this;
@@ -210,8 +210,8 @@ define('src/scene',[], function () {
         return this;
     };
     
-    Scene.prototype.unload = function (id) {
-        var index = this.actors.indexOf(id);
+    Scene.prototype.unload = function (actor) {
+        var index = this.actors.indexOf(actor);
         if (-1 !== index) {
             this.actors.splice(index, 1);
         }
@@ -252,7 +252,7 @@ define('src/scene',[], function () {
                 evaluations[i].evaluate.call(evaluations[i].actor);
             }
         }
-        for (i in this.stages) {
+        for (i = 0; i < this.stages.length; i += 1) {
             this.stages[i].evaluate(interval);
         }
         for (i = 0; i < this.conditions.length; i += 1) {
@@ -312,7 +312,10 @@ define('src/scene',[], function () {
 
 define('src/stage',[], function () {
     
-    function Stage() {}
+    function Stage(config) {
+        config = config || {};
+        this.id = config.id;
+    }
     return Stage;
 });
 
@@ -442,7 +445,9 @@ require(['src/proscenium.js'], function (Proscenium) {
     };
     document.getElementById('page-wrapper').appendChild(Proscenium.curtains.cells.element);
 
-    Proscenium.scene('main');
+    Proscenium.scene('main', {
+        //throttle: 10
+    });
     Proscenium.scenes.main.always = function (interval) {
         Proscenium.actors.debug.set('framerate', this._framerate);
     };
@@ -579,8 +584,8 @@ require(['src/proscenium.js'], function (Proscenium) {
         };
     }());
 
-    Proscenium.scenes.main.stages['life'] = Proscenium.stages.life;
-    Proscenium.scenes.main.stages['paper'] = Proscenium.stages.paper;
+    Proscenium.scenes.main.stages.push(Proscenium.stages.life);
+    Proscenium.scenes.main.stages.push(Proscenium.stages.paper);
     
     Proscenium.scenes.main.run();
     

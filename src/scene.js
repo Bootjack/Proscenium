@@ -6,10 +6,10 @@ define([], function () {
         this.actors = [];
         this.conditions = [];
         this.paused = false;
-        this.stages = {};
+        this.stages = [];
         this._pausedAt = 0;
         this._paused = 0;
-        this._throttle = 60;
+        this._throttle = config.throttle || 60;
         this._framerate = 0;
         this._lastFrame = 0;
         return this;
@@ -22,8 +22,8 @@ define([], function () {
         return this;
     };
     
-    Scene.prototype.unload = function (id) {
-        var index = this.actors.indexOf(id);
+    Scene.prototype.unload = function (actor) {
+        var index = this.actors.indexOf(actor);
         if (-1 !== index) {
             this.actors.splice(index, 1);
         }
@@ -64,7 +64,7 @@ define([], function () {
                 evaluations[i].evaluate.call(evaluations[i].actor);
             }
         }
-        for (i in this.stages) {
+        for (i = 0; i < this.stages.length; i += 1) {
             this.stages[i].evaluate(interval);
         }
         for (i = 0; i < this.conditions.length; i += 1) {

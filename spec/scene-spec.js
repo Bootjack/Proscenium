@@ -11,11 +11,11 @@ define(['src/scene', 'src/actor'], function (Scene, Actor) {
                 expect(scene.actors).toBeDefined();
             });
             it('can load actors into the set', function () {
-                scene.load(actor.id);
+                scene.load(actor);
                 expect(scene.actors.length).toBe(1);
             });
             it('or unload them', function () {
-                scene.unload(actor.id);
+                scene.unload(actor);
                 expect(scene.actors.length).toBe(0);
             });
         });

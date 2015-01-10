@@ -4,8 +4,7 @@
   "authors": [
     "Jason Hinebaugh <jason@bootjackdesign.com>"
   ],
-  "description": "An experimental game engine in paper.js + ammo.js,
-  maybe","
+  "description": "An experimental game engine in paper.js + ammo.js, maybe",
   "main": "public/js/main.js",
   "keywords": [
     "game engine",

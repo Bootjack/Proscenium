@@ -93,7 +93,7 @@ define([
         this.element.parentNode.removeChild(this.element);
     };
 
-    Curtain = util.mixin(Curtain, [Collection], {name: 'actors'});
+    util.mixin(Curtain, [Collection], {name: 'actors'});
 
     return Curtain;
 });

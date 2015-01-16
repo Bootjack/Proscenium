@@ -74,7 +74,7 @@ define(['src/emitter', 'src/util'], function (Emitter, util) {
         });
     };
 
-    Actor = util.mixin(Actor, [Emitter]);
+    util.mixin(Actor, [Emitter]);
 
     return Actor;
 });

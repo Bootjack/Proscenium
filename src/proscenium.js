@@ -21,10 +21,14 @@ define([
             config = config || ('string' !== typeof id && id);
             id = id || collection + '-' + this['_' + collection];
             config.id = config.id || id;
-            var instance = new Constructor(config);
+            var instance = new Constructor(config, this);
             this[collection][id] = instance;
             this['_' + collection] += 1;
             return instance;
+        },
+
+        destroy: function () {
+
         },
         
         actor: function (id, config) {

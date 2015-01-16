@@ -1,23 +1,29 @@
 define(['src/emitter', 'src/util'], function (Emitter, util) {
     'use strict';
     
-    function Actor(config) {
+    var Actor = function(config) {
         config = config || {};
         // The state object stores all data about the actor so that it can be saved and restored.
         this.state = {};
         this.roles = [];
         this.id = config.id;
-        return this;
-    }
+        this.preparations = [];
 
-    util.mixin(Actor, Emitter);
-    
-    Actor.prototype.set = function (name, value) {
-        this.state[name] = value;
-        this.trigger('update');
+        if (config.prep) {
+            this.preparations.push(config.prep);
+        }
+
+        if ('function' === typeof config.evaluate) {
+            this.evaluate = config.evaluate.bind(this);
+        }
+
+        if ('function' === typeof config.init) {
+            config.init.call(this);
+        }
+
         return this;
     };
-    
+
     // A shared set of role definitions. Proscenium.role() adds to this list.
     Actor.prototype._roles = {};
 
@@ -39,11 +45,14 @@ define(['src/emitter', 'src/util'], function (Emitter, util) {
                 role.members.push(this);
                 // Copy properties from role definition to actor
                 for (property in role.definition) {
-                    if ('init' === property) {
-                        role.definition.init.call(this);
-                    } else {
+                    if ('prep' === property) {
+                        this.prepartions.push(role.definition[property]);
+                    } else if ('init' !== property) {
                         this[property] = role.definition[property];
                     }
+                }
+                if ('function' === typeof role.definition.init) {
+                    role.definition.init.call(this);
                 }
             } else {
                 throw new Error('Actor role "' + roles[i] + '" is not defined');
@@ -51,11 +60,21 @@ define(['src/emitter', 'src/util'], function (Emitter, util) {
         }
         return this;
     };
-    
-    // Function called at every step of the main stage, allowing actor to update its own state.
-    Actor.prototype.evaluate = function () {
-        return false;
+
+    Actor.prototype.set = function (name, value) {
+        this.state[name] = value;
+        this.trigger('update');
+        return this;
     };
-    
+
+    Actor.prototype.prep = function () {
+        var that = this;
+        this.preparations.forEach(function (prep) {
+            prep.call(that);
+        });
+    };
+
+    Actor = util.mixin(Actor, [Emitter]);
+
     return Actor;
 });

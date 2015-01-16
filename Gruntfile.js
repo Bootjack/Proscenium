@@ -6,8 +6,9 @@ module.exports = function(grunt) {
         copy: {
             main: {
                 files: [
-                    {src: 'bower_components/requirejs/require.js', dest: 'public/js/require.js'},
-                    {src: 'bower_components/paper/dist/paper-full.js', dest: 'public/js/paper.js'}
+                    {src: 'dist/proscenium.js', dest: 'examples/life/proscenium.js'},
+                    {src: 'bower_components/modernizr/modernizr.js', dest: 'examples/life/modernizr.js'},
+                    {src: 'bower_components/paper/dist/paper-full.js', dest: 'examples/life/paper.js'}
                 ]
             }
         },
@@ -24,8 +25,9 @@ module.exports = function(grunt) {
                     templateOptions: {
                         requireConfig: {
                             baseUrl: './',
-                            include: [
-                                'bower_components/modernizr/modernizr.js'
+                            deps: [
+                                'bower_components/modernizr/modernizr',
+                                'lib/bind-shim'
                             ]
                         }
                     }
@@ -34,30 +36,35 @@ module.exports = function(grunt) {
         },
         
         jshint: {
-            files: ['src/**/*.js', 'lib/phyzix/*.js']
+            files: [
+                'src/**/*.js',
+                'lib/phyzix/*.js'
+            ]
         },
         
         requirejs: {
+            options: {
+                baseUrl: './'
+            },
             compile: {
                 options: {
-                    baseUrl: './',
                     name: 'src/proscenium.js',
                     optimize: 'none',
-                    out: 'public/js/proscenium.js',
-                    include: [
-                        'bower_components/modernizr/modernizr.js'
-                    ]
+                    out: 'dist/proscenium.js'
                 }
             },
-            example: {
+            minify: {
                 options: {
-                    baseUrl: './',
-                    name: 'examples/life.js',
+                    name: 'src/proscenium.js',
+                    optimize: 'uglify',
+                    out: 'dist/proscenium.min.js'
+                }
+            },
+            'examples-life': {
+                options: {
+                    name: 'examples/life/life.js',
                     optimize: 'none',
-                    out: 'public/js/main.js',
-                    include: [
-                        'bower_components/modernizr/modernizr.js'
-                    ]
+                    out: 'examples/life/main.js'
                 }
             }
         },

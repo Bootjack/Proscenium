@@ -1,8 +1,10 @@
 define([], function () {
-    function Emitter() {
+
+    var Emitter = function () {
         this._events = {};
         return this;
-    }
+    };
+
     Emitter.prototype.trigger = function (event, data) {
         var i;
         if (this._events[event] && this._events[event].length) {
@@ -13,23 +15,22 @@ define([], function () {
             }
         }
     };
+
     Emitter.prototype.on = function (event, func, scope) {
-        this._events = this._events || {};
-        if (scope) {
-            func = function () {
-                scope.apply(func, arguments);
-            };
-        }
+        scope = scope || this;
+        func = func.bind(scope);
         this._events[event] = this._events[event] || [];
         this._events[event].push(func);
     };
+
     Emitter.prototype.off = function (event, func) {
-        this._events = this._events || {};
+        var index = this._events[event].indexOf(func);
         if (func) {
-            this._events.splice(this._events.indexOf(func), 1);
+            this._events[event].splice(index, 1);
         } else {
             this._events[event] = [];
         }
     };
+
     return Emitter;
 });

@@ -76,7 +76,7 @@ module.exports = function(grunt) {
                     linenos: true
                 },
                 files: {
-                    'public/css/main.css': 'stylus/main.styl'
+                    'examples/life/css/main.css': 'stylus/main.styl'
                 }
             }
         },

@@ -55,10 +55,19 @@ define([], function() {
 
             return Parent;
         },
-        mixin: function (Self, Mixins, config) {
-            var mix, proto, Mixed = function () {};
-            Mixins.forEach(function (Mixin) {
-                Mixed = util.inherit(Mixed, Mixin, config);
+        mixin: function (Self, Mixins, configs) {
+            var config, mix, proto, Mixed = function () {};
+            configs = configs || [];
+            if (!(configs instanceof Array)) {
+                configs = [configs];
+            }
+            configs.forEach(function(conf, i) {
+                if (i > 0 && configs[i + 1]) {
+                    configs[i] = util.merge(configs.slice(i));
+                }
+            });
+            Mixins.forEach(function (Mixin, i) {
+                Mixed = util.inherit(Mixed, Mixin, configs[i]);
             });
 
             proto = Self.prototype;

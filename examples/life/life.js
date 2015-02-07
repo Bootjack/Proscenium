@@ -108,7 +108,7 @@ require(['src/proscenium', 'src/util'], function (Proscenium, util) {
      * applied to an actor, the init function will run, so that's where we set some default properties.
      *
      * Where other Proscenium constructor patterns accept a configuration object, the role constructor accepts a
-     * prototype definition. This means there is no limitation to configuration options for roles. Every propoerty on
+     * prototype definition. This means there is no limitation to configuration options for roles. Every property on
      * the prototype definition will be inherited by all actors assuming that role.
      *
      * TODO: Roles need to clean up after themselves when unassigned, restoring any properties they overwrote.

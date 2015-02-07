@@ -10,7 +10,7 @@ This project uses Grunt and Bower, which need to be set up separately
     $ bower install
     $ grunt build
 
-Now you can view file:///[path/to/repo]/public/index.html in your browser
+Now you can view file:///[path/to/repo]/examples/life/index.html in your browser
 
 ## Usage
 

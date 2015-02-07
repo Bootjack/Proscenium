@@ -1,8 +1,15 @@
-define(['src/emitter', 'src/util'], function (Emitter, util) {
+define([
+    'src/emitter',
+    'src/util'
+], function (
+    Emitter,
+    util
+) {
     'use strict';
     
     var Actor = function(config) {
         config = config || {};
+
         // The state object stores all data about the actor so that it can be saved and restored.
         this.state = {};
         this.roles = [];

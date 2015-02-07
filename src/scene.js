@@ -7,6 +7,20 @@ define([
 ) {
     'use strict';
 
+    /**
+     * A Scene controls the flow of game logic by defining a beginning state and one or more ending states. Once it's
+     * initialized, the scene will iterate frame-by-frame invoking evaluation logic on each of its actors and stages.
+     * The last step of each frame is to test each ending condition to see if the scene should end and how control
+     * should be passed to the next segment of the game.
+     * @param config {scenConfig} Configuration options for initializing this scene
+     * @param scope {Proscenium} A reference to the Proscenium object used to define the Scene
+     * @returns {Scene}
+     * @constructor
+     *
+     * {Object} sceneConfig
+     * {Function} sceneConfig.always will run at the beginning of every frame
+     * {Function} sceneConfig.init will run immediately upon instantiation
+     */
     var Scene = function(config, scope) {
         var that = this;
 

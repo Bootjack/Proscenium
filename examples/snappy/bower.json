@@ -1,0 +1,19 @@
+{
+  "name": "snappy-bat",
+  "version": "0.0.1",
+  "homepage": "https://github.com/Bootjack/Proscenium",
+  "authors": [
+    "Jason Hinebaugh <jason@bootjackdesign.com>"
+  ],
+  "description": "A game example built with Proscenium",
+  "moduleType": [
+    "amd"
+  ],
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "Snap.svg": "~0.3.0",
+    "modernizr": "~2.8.3",
+    "requirejs": "~2.1.15"
+  }
+}

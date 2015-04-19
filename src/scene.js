@@ -181,11 +181,11 @@ define([
 
     Scene.prototype.cleanup = function () {
         this.curtains.forEach(function (curtain) {
-            curtain.clear();
+            curtain.clear(this);
         });
         this.stages.forEach(function (stage) {
             if ('function' === typeof stage.clear) {
-                stage.clear();
+                stage.clear(this);
             }
         });
         return this;

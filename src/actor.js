@@ -55,7 +55,7 @@ define([
                 // Copy properties from role definition to actor
                 for (property in role.definition) {
                     if ('prep' === property) {
-                        this.prepartions.push(role.definition[property]);
+                        this.preparations.push(role.definition[property]);
                     } else if ('evaluate' === property) {
                         this.evaluations.push(role.definition[property]);
                     } else if ('init' !== property) {

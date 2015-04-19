@@ -32,6 +32,10 @@ define([], function () {
             this.evaluate = config.evaluate.bind(this);
         }
 
+        if ('function' === typeof config.clear) {
+            this.clear = config.clear.bind(this);
+        }
+
         if ('function' === typeof config.init) {
             config.init.call(this);
         }

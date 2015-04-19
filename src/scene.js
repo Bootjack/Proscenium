@@ -173,6 +173,18 @@ define([
         return this;
     };
 
+    Scene.prototype.cleanup = function () {
+        this.curtains.forEach(function (curtain) {
+            curtain.clear();
+        });
+        this.stages.forEach(function (stage) {
+            if ('function' === typeof stage.clear) {
+                stage.clear();
+            }
+        });
+        return this;
+    };
+
     Scene.prototype.begin = function (config) {
         this.running = true;
         this._lastFrame = new Date().getTime();
@@ -183,6 +195,7 @@ define([
     Scene.prototype.end = function () {
         this.running = false;
         clearTimeout(this._timeout);
+	this.cleanup();
     };
 
     return Scene;

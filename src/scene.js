@@ -102,8 +102,14 @@ define([
         }
 
         this.actors.forEach(function (actor) {
+            var result;
             if ('function' === typeof actor.evaluate) {
-                evaluations.push(actor.evaluate(interval));
+                result = actor.evaluate(interval);
+                if ('function' === typeof result) {
+                    evaluations.push(result);
+                } else if (result instanceof Array) {
+                    evaluations = evaluations.concat(result);
+                }
             }
         });
 

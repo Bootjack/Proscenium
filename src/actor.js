@@ -56,7 +56,7 @@ define([
                 for (property in role.definition) {
                     if ('prep' === property) {
                         this.prepartions.push(role.definition[property]);
-                    } else if ('evaluation' === property) {
+                    } else if ('evaluate' === property) {
                         this.evaluations.push(role.definition[property]);
                     } else if ('init' !== property) {
                         this[property] = role.definition[property];
@@ -85,10 +85,10 @@ define([
         });
     };
     
-    Actor.prototype.evaluate = function () {
+    Actor.prototype.evaluate = function (interval) {
         var that = this;
-        this.evaluations.forEach(function (ev) {
-            ev.call(that);
+        return this.evaluations.map(function (ev) {
+            return ev.call(that, interval);
         });
     };
 

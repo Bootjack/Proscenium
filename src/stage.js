@@ -41,5 +41,7 @@ define([], function () {
         }
     };
 
+    Stage.prototype.clear = function () {};
+
     return Stage;
 });

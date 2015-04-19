@@ -180,14 +180,12 @@ define([
     };
 
     Scene.prototype.cleanup = function () {
-    	var scene = this;
+        var scene = this;
         this.curtains.forEach(function (curtain) {
             curtain.clear(scene);
         });
         this.stages.forEach(function (stage) {
-            if ('function' === typeof stage.clear) {
-                stage.clear(scene);
-            }
+            stage.clear(scene);
         });
         return this;
     };

@@ -10,18 +10,20 @@ define([
     var Actor = function(config) {
         config = config || {};
 
-        // The state object stores all data about the actor so that it can be saved and restored.
-        this.state = {};
-        this.roles = [];
+        this.evaluations = [];
         this.id = config.id;
         this.preparations = [];
+        this.roles = [];
+        
+        // The state object stores all data about the actor so that it can be saved and restored.
+        this.state = {};
 
-        if (config.prep) {
+        if ('function' === typeof config.prep) {
             this.preparations.push(config.prep);
         }
 
         if ('function' === typeof config.evaluate) {
-            this.evaluate = config.evaluate.bind(this);
+            this.evaluations.push(config.evaluate);
         }
 
         if ('function' === typeof config.init) {
@@ -54,6 +56,8 @@ define([
                 for (property in role.definition) {
                     if ('prep' === property) {
                         this.prepartions.push(role.definition[property]);
+                    } else if ('evaluation' === property) {
+                        this.evaluations.push(role.definition[property]);
                     } else if ('init' !== property) {
                         this[property] = role.definition[property];
                     }
@@ -78,6 +82,13 @@ define([
         var that = this;
         this.preparations.forEach(function (prep) {
             prep.call(that);
+        });
+    };
+    
+    Actor.prototype.evaluate = function () {
+        var that = this;
+        this.evaluations.forEach(function (ev) {
+            ev.call(that);
         });
     };
 

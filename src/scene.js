@@ -62,6 +62,10 @@ define([
         if ('function' === typeof config.prep) {
             this.prep = config.prep.bind(this);
         }
+        
+        if ('function' === typeof config.clear) {
+            this.clear = config.clear.bind(this);
+        }
 
         if ('function' === typeof config.init) {
             config.init.call(this);
@@ -187,6 +191,9 @@ define([
         this.stages.forEach(function (stage) {
             stage.clear(scene);
         });
+        if ('function' === typeof this.clear) {
+            this.clear();
+        }
         return this;
     };
 

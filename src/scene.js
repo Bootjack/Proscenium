@@ -35,9 +35,10 @@ define([
 
         this.actors = [];
         this.conditions = [];
-        this.curtains = {};
+        this.curtains = [];
         this.paused = false;
-        this.stages = {};
+	this.running = false;
+        this.stages = [];
 
         this.always = config.always;
         this.throttle = config.throttle || 60;
@@ -55,7 +56,7 @@ define([
                 return scope.stages[name];
             });
         } else if ('string' === typeof config.curtains) {
-            this.stages.push(scope.steages[name]);
+            this.stages.push(scope.stages[name]);
         }
 
         if ('function' === typeof config.prep) {
@@ -70,7 +71,9 @@ define([
     };
 
     Scene.prototype.warmup = function (config) {
-        this.prep(config);
+        if ('function' === typeof this.prep) {
+            this.prep(config);
+        }
         this.curtains.forEach(function (curtain) {
             curtain.clear();
         });
@@ -99,7 +102,7 @@ define([
         }
 
         this.actors.forEach(function (actor) {
-            if ('function' === actor.evaluate) {
+            if ('function' === typeof actor.evaluate) {
                 evaluations.push(actor.evaluate(interval));
             }
         });
@@ -160,26 +163,29 @@ define([
             }
         }
 
-        this._timeout = setTimeout(
-            (function (self) {
-                return function () {
-                    self.run();
-                };
-            }(this)),
-            timeout
-        );
+        if (this.running) {
+            this._timeout = setTimeout(
+                this.run.bind(this),
+                timeout
+            );
+        }
 
         return this;
     };
 
     Scene.prototype.begin = function (config) {
+        this.running = true;
+        this._lastFrame = new Date().getTime();
         this.warmup(config);
         this.run();
     };
 
     Scene.prototype.end = function () {
+        this.running = false;
         clearTimeout(this._timeout);
     };
 
     return Scene;
 });
+
+

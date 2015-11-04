@@ -70,7 +70,7 @@ define([
 
     Curtain.prototype.render = function () {
         var data = this.calculate();
-        return this.template(data);
+        this.element.innerHTML = this.template(data);
     };
 
     Curtain.prototype.update = function () {
@@ -79,7 +79,7 @@ define([
         if (!this._updating) {
             this._updating = true;
             this.beforeUpdate();
-            this.element.innerHTML = this.render();
+            this.render();
             this.afterUpdate();
 
             setTimeout(function () {
